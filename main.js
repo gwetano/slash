@@ -6,7 +6,7 @@ const { exec } = require('child_process');
 
 let win;
 const MIN_W = 30;
-const H = 50;
+const H = 55;
 
 function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -23,7 +23,7 @@ function createWindow() {
     resizable: false,
     frame: false,
     transparent: true,
-    backgroundColor: '#00000000',
+    backgroundColor: '#00000000', 
     vibrancy: process.platform === 'darwin' ? 'sidebar' : undefined,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

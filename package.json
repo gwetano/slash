@@ -1,5 +1,5 @@
 {
-  "name": "quick-electron-searchbar",
+  "name": "slash",
   "version": "0.1.0",
   "private": true,
   "main": "main.js",
@@ -14,8 +14,8 @@
   },
 
   "build": {
-    "appId": "com.tunome.quicksearchbar",
-    "productName": "QuickSearchBar",
+    "appId": "com.giovanni.slash",
+    "productName": "slash",
     "asar": true,
     "files": [
       "main.js",
