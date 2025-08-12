@@ -1,0 +1,47 @@
+{
+  "name": "quick-electron-searchbar",
+  "version": "0.1.0",
+  "private": true,
+  "main": "main.js",
+  "description": "MINI-SEARCHBAR",
+  "author": "Giovanni",
+  "license": "MIT",
+
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir", 
+    "dist": "electron-builder" 
+  },
+
+  "build": {
+    "appId": "com.tunome.quicksearchbar",
+    "productName": "QuickSearchBar",
+    "asar": true,
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "renderer.js",
+      "style.css",
+      "package.json"
+    ],
+    "mac": {
+      "target": ["dmg", "zip"],
+      "category": "public.app-category.productivity",
+      "icon": "icons/icon.icns" 
+    },
+    "win": {
+      "target": ["nsis"],
+      "icon": "icons/icon.ico"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "icon": "icons"
+    }
+  },
+
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}
