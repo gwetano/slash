@@ -1,6 +1,11 @@
 const input = document.getElementById('q');
 const mirror = document.getElementById('mirror');
 
+const commandsList = ['google', 'wiki', 'yt', 'duck', 'open', 'file', 'mark'];
+
+let history = [];
+let historyIndex = -1;
+
 function measure() {
     mirror.textContent = (input.value || '') + ' ';
     return {
@@ -19,7 +24,6 @@ function requestResize() {
         window.native?.setWidth?.(width);
     });
 }
-
 function isMathExpression(str) {
     return /^[0-9+\-*/().,^%\s]+$/.test(str);
 }
@@ -63,7 +67,7 @@ const commands = {
             setTimeout(() => { input.value = prev; requestResize(); }, 800);
         }
     },
-    
+
     async file(q) {
         const term = String(q || '').trim();
         if (!term) return;
@@ -71,11 +75,7 @@ const commands = {
             const results = await window.native?.searchFiles?.(term);
             if (Array.isArray(results) && results.length) {
                 window.native?.revealInFolder?.(results[0]);
-                // opzionale: mostra il primo path nell’input
-                // input.value = results[0];
-                // requestResize();
             } else {
-                // nessun risultato: feedback minimo nell’input
                 const prev = input.value;
                 input.value = 'Nessun file trovato';
                 requestResize();
@@ -135,7 +135,12 @@ input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === 'NumpadEnter') {
         e.preventDefault();
 
-        const res = executeLine(input.value);
+        const currentValue = input.value;
+        const res = executeLine(currentValue);
+
+        if (currentValue.trim() !== '') {
+            addToHistory(currentValue);
+        }
 
         if (res.type === 'exit') {
             return;
@@ -156,10 +161,56 @@ input.addEventListener('keydown', (e) => {
         input.value = '';
         requestResize();
     }
+
+    if (e.key === 'Tab') {
+        e.preventDefault();
+
+        const val = input.value.trim();
+        if (val.startsWith('/')) {
+            const partial = val.slice(1).toLowerCase();
+            const matches = commandsList.filter(cmd => cmd.startsWith(partial));
+
+            if (matches.length === 1) {
+                input.value = '/' + matches[0] + ' ';
+                requestResize();
+            }
+        }
+    }
+
+    if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (history.length > 0) {
+            if (historyIndex === -1) {
+                historyIndex = history.length - 1;
+            } else if (historyIndex > 0) {
+                historyIndex--;
+            }
+            input.value = history[historyIndex] || '';
+            requestResize();
+        }
+    } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (history.length > 0) {
+            if (historyIndex !== -1) {
+                historyIndex++;
+                if (historyIndex >= history.length) {
+                    historyIndex = -1;
+                    input.value = '';
+                } else {
+                    input.value = history[historyIndex] || '';
+                }
+                requestResize();
+            }
+        }
+    }
 });
 
-
-
+function addToHistory(command) {
+    if (command && (history.length === 0 || history[history.length - 1] !== command)) {
+        history.push(command);
+    }
+    historyIndex = -1;
+}
 
 window.addEventListener('DOMContentLoaded', () => {
     input.focus();
