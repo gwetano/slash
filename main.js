@@ -22,8 +22,7 @@ function createWindow() {
     y: y,
     resizable: false,
     frame: false,
-    transparent: true,
-    backgroundColor: '#00000000', 
+    backgroundColor: '#242424',
     vibrancy: process.platform === 'darwin' ? 'sidebar' : undefined,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
