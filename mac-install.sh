@@ -69,7 +69,7 @@ if [ -d "$DEST" ]; then
   rm -rf "$DEST"
 fi
 
-echo "📂 Copio $APP_NAME in /Applications…"
+echo "Copio $APP_NAME in /Applications…"
 cp -R "$APP_PATH" "$DEST"
 
 echo "Installazione completata!"

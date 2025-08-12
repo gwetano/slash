@@ -30,12 +30,6 @@ It provides a floating search bar that can execute quick commands, open websites
 bash mac-install.sh
 ```
 
-### linux
-
-```
-bash lin-install.sh
-```
-
 ## Usage
 
 1. Launch the app
