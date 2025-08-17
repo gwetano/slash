@@ -1,16 +1,22 @@
 {
   "name": "slash",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "main": "main.js",
   "description": "MINI-SEARCHBAR",
   "author": "Giovanni",
   "license": "MIT",
+  "homepage": "https://github.com/gwetano/slash",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gwetano/slash.git"
+  },
 
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir", 
-    "dist": "electron-builder" 
+    "dist": "electron-builder",
+    "publish": "electron-builder --publish=always"
   },
 
   "build": {
@@ -25,6 +31,11 @@
       "style.css",
       "package.json"
     ],
+    "publish": {
+      "provider": "github",
+      "owner": "gwetano",
+      "repo": "slash"
+    },
     "mac": {
       "target": ["dmg", "zip"],
       "category": "public.app-category.productivity",
@@ -43,5 +54,8 @@
   "devDependencies": {
     "electron": "^30.0.0",
     "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.7"
   }
 }

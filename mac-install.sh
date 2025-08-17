@@ -18,8 +18,8 @@ if ! command -v npm >/dev/null 2>&1; then
   exit 1
 fi
 
-# 2) Dipendenze
-echo "npm install…"
+# 2) Dipendenze (incluso electron-updater)
+echo "npm install (incluso electron-updater per auto-aggiornamenti)…"
 npm install
 
 # 3) Verifica icona
@@ -44,21 +44,16 @@ echo "Arch rilevata: $EP_ARCH"
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
-# 6) Build con electron-packager via npx
-echo "Creo .app con electron-packager…"
-npx --yes electron-packager "." "$APP_NAME" \
-  --platform=darwin \
-  --arch="$EP_ARCH" \
-  --out="$BUILD_DIR" \
-  --overwrite \
-  --app-bundle-id="$APP_ID" \
-  --asar \
-  "${ICON_FLAG[@]}"
+# 6) Build con electron-builder (migliore per auto-updater)
+echo "Creo .app con electron-builder per supporto auto-aggiornamenti…"
+npm run dist
 
-# 7) Percorso di output atteso
-APP_PATH="$BUILD_DIR/${APP_NAME}-darwin-${EP_ARCH}/${APP_NAME}.app"
+# 7) Trova il file .app generato da electron-builder
+APP_PATH=$(find "$BUILD_DIR" -name "${APP_NAME}.app" -type d | head -1)
 if [ ! -d "$APP_PATH" ]; then
-  echo "Build fallita: non trovo $APP_PATH"
+  echo "Build fallita: non trovo ${APP_NAME}.app in $BUILD_DIR"
+  echo "File trovati:"
+  ls -la "$BUILD_DIR"
   exit 1
 fi
 
@@ -73,6 +68,7 @@ echo "Copio $APP_NAME in /Applications…"
 cp -R "$APP_PATH" "$DEST"
 
 echo "Installazione completata!"
-echo "Apri l’app da /Applications/$APP_NAME.app o con Spotlight."
+echo "L'app supporta ora gli auto-aggiornamenti da GitHub Releases."
+echo "Apri l'app da /Applications/$APP_NAME.app o con Spotlight."
 
 open "$DEST"

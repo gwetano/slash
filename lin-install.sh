@@ -31,6 +31,8 @@ steps=("Installazione dipendenze" "Build progetto" "Copia file" "Installazione c
 total=${#steps[@]}
 
 clear
+echo "Installazione slash con supporto auto-aggiornamenti"
+echo ""
 
 for i in "${!steps[@]}"; do
   step=${steps[$i]}
@@ -39,18 +41,21 @@ for i in "${!steps[@]}"; do
   sleep 1 # Simula tempo di esecuzione
   case $step in
     "Installazione dipendenze")
+      echo "Installando dipendenze (incluso electron-updater)..."
       npm install > /dev/null 2>&1
       ;;
     "Build progetto")
+      echo "Creando build con supporto auto-aggiornamenti..."
       npm run dist > /dev/null 2>&1
       ;;
     "Copia file")
+      echo "Copiando file di sistema..."
       sudo mkdir -p "$INSTALL_DIR"
       sudo cp -r "$DIST_DIR"/* "$INSTALL_DIR/"
       sudo chmod +x "$INSTALL_DIR/slash"
       ;;
     "Installazione completata")
-      echo "slash è stato installato correttamente!"
+      echo "slash è stato installato correttamente con auto-aggiornamenti!"
       ;;
   esac
   sleep 0.5
@@ -61,7 +66,7 @@ cat <<EOF > "$DESKTOP_FILE"
 [Desktop Entry]
 Version=1.0
 Name=slash
-Comment=App slash
+Comment=Mini searchbar con auto-aggiornamenti
 Exec=$INSTALL_DIR/slash
 Icon=slash
 Terminal=false
@@ -71,4 +76,8 @@ EOF
 chmod +x "$DESKTOP_FILE"
 update-desktop-database ~/.local/share/applications/
 
-echo "Puoi trovare slash nel menu applicazioni"
+echo ""
+echo "✅ Installazione completata!"
+echo "📱 Puoi trovare slash nel menu applicazioni"
+echo "🔄 L'app controllerà automaticamente gli aggiornamenti da GitHub"
+echo "💡 Usa il comando '/update' per controllare manualmente"
