@@ -74,7 +74,11 @@ const commands = {
         try {
             const results = await window.native?.searchFiles?.(term);
             if (Array.isArray(results) && results.length) {
-                window.native?.revealInFolder?.(results[0]);
+                window.native?.openExternal?.('file://' + results[0]);
+                const prev = input.value;
+                input.value = 'Apro: ' + results[0].split('/').pop();
+                requestResize();
+                setTimeout(() => { input.value = prev; requestResize(); }, 1200);
             } else {
                 const prev = input.value;
                 input.value = 'Nessun file trovato';

@@ -110,8 +110,13 @@ ipcMain.on('check-for-updates', () => {
 });
 
 ipcMain.on('open-external', (_evt, url) => {
-  if (typeof url === 'string' && /^https?:\/\//i.test(url)) {
-    shell.openExternal(url);
+  if (typeof url === 'string') {
+    if (/^https?:\/\//i.test(url)) {
+      shell.openExternal(url);
+    } else if (/^file:\/\//i.test(url)) {
+      const filePath = url.replace(/^file:\/\//i, '');
+      shell.openPath(filePath);
+    }
   }
 });
 
@@ -135,8 +140,8 @@ ipcMain.handle('search-files', async (_evt, query) => {
 
   function execCmd(cmd) {
     return new Promise((resolve) => {
-      const p = exec(cmd, { 
-        timeout: TIMEOUT_MS, 
+      const p = exec(cmd, {
+        timeout: TIMEOUT_MS,
         windowsHide: true,
         maxBuffer: 1024 * 1024
       }, (err, stdout) => {
@@ -150,7 +155,6 @@ ipcMain.handle('search-files', async (_evt, query) => {
           .slice(0, MAX);
         resolve(lines);
       });
-      
       if (p.stdout) {
         p.stdout.setEncoding('utf8');
       }
@@ -158,13 +162,20 @@ ipcMain.handle('search-files', async (_evt, query) => {
   }
 
   try {
+    let results = [];
     if (process.platform === 'darwin') {
-      const escapedQuery = q.replace(/"/g, '\\"');
-      const cmd = `mdfind -onlyin "${home}" -name "*${escapedQuery}*" 2>/dev/null`;
-      return await execCmd(cmd);
-    }
-
-    if (process.platform === 'win32') {
+      const escapedQuery = q.replace(/(["'\\$`*?[\]{}()])/g, '\\$1');
+      const commonDirs = [
+        `"${home}/Desktop"`,
+        `"${home}/Documents"`,
+        `"${home}/Downloads"`,
+        `"${home}/Pictures"`,
+        `"${home}/Videos"`,
+        `"${home}/Music"`
+      ];
+      const cmd = `(find ${commonDirs.join(' ')} -maxdepth 3 -type f -iname "*${escapedQuery}*" 2>/dev/null; find "${home}" -maxdepth 2 -type f -iname "*${escapedQuery}*" 2>/dev/null) | head -n ${MAX}`;
+      results = await execCmd(cmd);
+    } else if (process.platform === 'win32') {
       const escapedQuery = q.replace(/'/g, "''").replace(/"/g, '""');
       const ps = [
         '$ErrorActionPreference = "SilentlyContinue";',
@@ -176,24 +187,33 @@ ipcMain.handle('search-files', async (_evt, query) => {
         `  | Select-Object -First ${MAX} -ExpandProperty FullName`,
         '} catch { }'
       ].join(' ');
-      
       const cmd = `powershell -NoProfile -ExecutionPolicy Bypass -Command "${ps}"`;
-      return await execCmd(cmd);
+      results = await execCmd(cmd);
+    } else {
+      const escapedQuery = q.replace(/(["'\\$`*?[\]{}()])/g, '\\$1');
+      const commonDirs = [
+        `"${home}/Desktop"`,
+        `"${home}/Documents"`,
+        `"${home}/Downloads"`,
+        `"${home}/Pictures"`,
+        `"${home}/Videos"`,
+        `"${home}/Music"`
+      ];
+      const cmd = `(find ${commonDirs.join(' ')} -maxdepth 3 -type f -iname "*${escapedQuery}*" 2>/dev/null; find "${home}" -maxdepth 2 -type f -iname "*${escapedQuery}*" 2>/dev/null) | head -n ${MAX}`;
+      results = await execCmd(cmd);
     }
-
-    const escapedQuery = q.replace(/(["'\\$`*?[\]{}()])/g, '\\$1');
-    const commonDirs = [
-      `"${home}/Desktop"`,
-      `"${home}/Documents"`, 
-      `"${home}/Downloads"`,
-      `"${home}/Pictures"`,
-      `"${home}/Videos"`,
-      `"${home}/Music"`
-    ];
-    
-    const cmd = `(find ${commonDirs.join(' ')} -maxdepth 3 -type f -iname "*${escapedQuery}*" 2>/dev/null; find "${home}" -maxdepth 2 -type f -iname "*${escapedQuery}*" 2>/dev/null) | head -n ${MAX}`;
-    return await execCmd(cmd);
-
+    console.log('Risultati ricerca:', results);
+    const filtered = results.filter(f => {
+      try {
+        const base = path.basename(f).toLowerCase();
+        const query = q.toLowerCase();
+        return base.includes(query) || base.startsWith(query);
+      } catch {
+        return false;
+      }
+    });
+    console.log('Risultati filtrati:', filtered);
+    return filtered;
   } catch (error) {
     console.error('File search error:', error);
     return [];
