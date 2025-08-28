@@ -8,5 +8,6 @@ contextBridge.exposeInMainWorld('native', {
     searchFiles: (q) => ipcRenderer.invoke('search-files', q),
     revealInFolder: (p) => ipcRenderer.send('reveal-in-folder', p),
 
-    openWithMark: (filePath) => ipcRenderer.send('open-with-mark', filePath)
+    openWithMark: (filePath) => ipcRenderer.send('open-with-mark', filePath),
+    getPrivateIP: () => ipcRenderer.invoke('get-private-ip')
 });

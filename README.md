@@ -23,7 +23,7 @@ slash is a minimal desktop app built with Electron that provides a floating sear
 | `/duck <query>` | Search on DuckDuckGo | `/duck privacy tools` |
 | `/open <url>` | Open website | `/open github. com` |
 | `/file <query>` | Search local files | `/file readme` |
-| `/update` | Check for app updates | `/update` |
+| `/ip` | Prints your private IP | `/ip` |
 | `exit` | Close the app | `exit` |
 
 ## Installation

@@ -1,7 +1,7 @@
 const input = document.getElementById('q');
 const mirror = document.getElementById('mirror');
 
-const commandsList = ['google', 'wiki', 'yt', 'duck', 'open', 'file', 'mark'];
+const commandsList = ['google', 'wiki', 'yt', 'duck', 'open', 'file', 'mark', 'ip'];
 
 let history = [];
 let historyIndex = -1;
@@ -90,6 +90,21 @@ const commands = {
             input.value = 'Errore ricerca file';
             requestResize();
             setTimeout(() => { input.value = prev; requestResize(); }, 800);
+        }
+    },
+
+    async ip() {
+        try {
+            const ip = await window.native?.getPrivateIP?.();
+            const prev = input.value;
+            input.value = ip || 'IP non trovato';
+            requestResize();
+            setTimeout(() => { input.value = prev; requestResize(); }, 1800);
+        } catch {
+            const prev = input.value;
+            input.value = 'Errore IP';
+            requestResize();
+            setTimeout(() => { input.value = prev; requestResize(); }, 1200);
         }
     },
 };
